@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -26,6 +26,7 @@ async function run() {
   try {
     await client.connect();
     const toolsCollection = client.db("CraftsHand").collection("tools");
+    const orderCollection = client.db("CraftsHand").collection("orders");
 
     //!-------- get all Tools ---------
     app.get("/tools", async (req, res) => {
@@ -33,7 +34,44 @@ async function run() {
       const tools = await cursor.toArray();
       res.send(tools);
     });
-    
+
+    //!-------- show one tool ---------
+    app.get("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toolsCollection.findOne(query);
+      res.send(result);
+    });
+
+    //!-------- update a tool quantity ---------
+
+    app.put("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const { name, image, description, minOrder, available, price } = req.body;
+
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: name,
+          image: image,
+          description: description,
+          minOrder: minOrder,
+          available: available,
+          price: price,
+        },
+      };
+
+      const result = await toolsCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    //!-------- Post an order tool ---------
+    app.post("/order", async (req, res) => {
+      const orderDetails = req.body;
+      const output = await orderCollection.insertOne(orderDetails);
+      res.send(output);
+    });
   } finally {
     //await client.close();
   }
