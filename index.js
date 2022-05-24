@@ -149,6 +149,14 @@ async function run() {
       res.send(result);
     })
 
+
+    //!----------- get all the Reviews ------------
+    app.get("/review", async (req, res) => {
+      const cursor = reviewCollection.find({});
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
   } finally {
     //await client.close();
   }
