@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
+const { application } = require("express");
 require("dotenv").config();
 
 const app = express();
@@ -49,6 +50,7 @@ async function run() {
     const toolsCollection = client.db("CraftsHand").collection("tools");
     const orderCollection = client.db("CraftsHand").collection("orders");
     const userCollection = client.db("CraftsHand").collection("users");
+    const reviewCollection = client.db("CraftsHand").collection("reviews");
 
     //!-------- insert a user information to DB ---------
     app.put("/user/:email", async (req, res) => {
@@ -74,6 +76,7 @@ async function run() {
       res.send(tools);
     });
 
+
     //!-------- show one tool ---------
     app.get("/tools/:id", async (req, res) => {
       const id = req.params.id;
@@ -82,7 +85,8 @@ async function run() {
       res.send(result);
     });
 
-    //!-------- update a tool quantity ---------
+
+    //!------------- update a tool quantity -------------
     app.put("/tools/:id", async (req, res) => {
       const id = req.params.id;
       const { name, image, description, minOrder, available, price } = req.body;
@@ -104,7 +108,8 @@ async function run() {
       res.send(result);
     });
 
-    //!-------- Post an order tool ---------
+
+    //!----------- Post an order tool ------------
     app.post("/order", verifyJWT, async (req, res) => {
       const orderDetails = req.body;
       const output = await orderCollection.insertOne(orderDetails);
@@ -112,7 +117,7 @@ async function run() {
     });
 
 
-    //!-------- All My orders ---------
+    //!------------ All My orders -------------
     app.get("/order/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
       const decodedEmail = req.decoded.email;
@@ -127,6 +132,22 @@ async function run() {
       }
     });
 
+
+    //!----------- Delete or Cancel a Order ------------
+    app.delete("/order/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+    //!----------- Post a Review ------------
+    app.post("/review", verifyJWT, async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    })
 
   } finally {
     //await client.close();
