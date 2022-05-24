@@ -141,6 +141,13 @@ async function run() {
       res.send(result);
     })
 
+    
+    //!----------- get all orders --------------
+    app.get("/order", verifyJWT, async (req, res) => {
+      const orders = await orderCollection.find().toArray();
+      res.send(orders);
+    });
+
 
     //!----------- Post a Review ------------
     app.post("/review", verifyJWT, async (req, res) => {
