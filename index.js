@@ -193,6 +193,21 @@ async function run() {
     });
 
 
+    //!-------- update shipped of a order (ADMIN only) ---------
+    app.patch("/orderShipped/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+
+      const updatedDoc = {
+        $set:{
+          orderStatus: "shipped"
+        }
+      }
+      const result = await orderCollection.updateOne(filter, updatedDoc);
+      res.send(result)
+    });
+
+
     //!----------- Post a Review ------------
     app.post("/review", verifyJWT, async (req, res) => {
       const review = req.body;
