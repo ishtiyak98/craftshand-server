@@ -102,6 +102,23 @@ async function run() {
     });
 
 
+     //!----------- Add an item tool ------------
+     app.post("/tools", verifyJWT, async (req, res) => {
+      const toolDetails = req.body;
+      const result = await toolsCollection.insertOne(toolDetails);
+      res.send(result);
+    });
+
+    
+    //!----------- Delete or Cancel a tool ------------
+    app.delete("/toolsItem/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toolsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
     //!------------- update a tool quantity -------------
     app.put("/tools/:id", async (req, res) => {
       const id = req.params.id;
