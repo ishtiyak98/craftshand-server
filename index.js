@@ -215,6 +215,33 @@ async function run() {
       res.send(users);
     });
 
+    //!-------- get one user ---------
+    app.get("/users/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
+
+    //!-------- update details of one user ---------
+    app.patch("/userUpdate/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const data = req.body; 
+      const filter = { email: email };
+
+      const updatedDoc = {
+        $set:{
+          education: data.education,
+          location: data.location,
+          phone: data.phone,
+          linkedIn: data.linkedIn,
+        }
+      }
+
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result)
+    });
+
 
     //!------------ Make an Admin --------------
     app.put("/user/admin/:email", verifyJWT, async (req, res) => {
