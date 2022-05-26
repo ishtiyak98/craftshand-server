@@ -68,6 +68,18 @@ async function run() {
       res.send({clientSecret: paymentIntent.client_secret})
     })
 
+     //!-------- Verified Admin ---------
+     const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({ email: requester });
+      if (requesterAccount.role === 'admin') {
+        next();
+      }
+      else {
+        res.status(403).send({ message: 'forbidden' });
+      }
+    }
+
     //!-------- insert a user information to DB ---------
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -242,7 +254,7 @@ async function run() {
 
 
     //!----------- get all users --------------
-    app.get("/users", verifyJWT, async (req, res) => {
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
