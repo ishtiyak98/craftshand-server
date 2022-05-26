@@ -115,7 +115,7 @@ async function run() {
 
 
      //!----------- Add an item tool ------------
-     app.post("/tools", verifyJWT, async (req, res) => {
+     app.post("/tools", verifyJWT, verifyAdmin, async (req, res) => {
       const toolDetails = req.body;
       const result = await toolsCollection.insertOne(toolDetails);
       res.send(result);
@@ -216,7 +216,7 @@ async function run() {
 
     
     //!----------- get all orders --------------
-    app.get("/order", verifyJWT, async (req, res) => {
+    app.get("/order", verifyJWT, verifyAdmin, async (req, res) => {
       const orders = await orderCollection.find().toArray();
       res.send(orders);
     });
